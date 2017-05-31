@@ -51,16 +51,17 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
             });
 
         const keydownEvent$ = Observable
-            .fromEvent(this._elementRef.nativeElement.parentElement, 'keydown')
-            .map((e: { keyCode: number; }) => e.keyCode);
+            .fromEvent<KeyboardEvent>(this._elementRef.nativeElement.parentElement, 'keydown');
 
         this._arrowEventSubscription$ = keydownEvent$
-            .filter(keyCode => keyCode === 38 || keyCode === 40)
-            .subscribe(keyCode => {
+            .filter(e => e.keyCode === 38 || e.keyCode === 40)
+            .subscribe(e => {
 
-                if (keyCode === 40) {
+                e.preventDefault();
+
+                if (e.keyCode === 40) {
                     this._highlightedIndex = this._highlightedIndex === (this._items.length - 1) ? 0 : this._highlightedIndex + 1;
-                } else if (keyCode === 38) {
+                } else if (e.keyCode === 38) {
                     this._highlightedIndex = this._highlightedIndex <= 0 ? (this._items.length - 1) : this._highlightedIndex - 1;
                 }
 
@@ -68,8 +69,8 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
             });
 
         this._selectEventSubscription$ = keydownEvent$
-            .filter(keyCode => keyCode === 13 || keyCode === 9)
-            .subscribe(keyCode => {
+            .filter(e => e.keyCode === 13 || e.keyCode === 9)
+            .subscribe(e => {
 
                 if (this._items[this._highlightedIndex]) {
                     this.select$.next(this._items[this._highlightedIndex]);
