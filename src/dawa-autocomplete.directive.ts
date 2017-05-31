@@ -44,6 +44,9 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
             .subscribe(items => {
 
                 this._items = items;
+                this._highlightedIndex = 0;
+
+                this.highlighted$.next(this._highlightedIndex);
                 this.items$.next(this._items);
             });
 
