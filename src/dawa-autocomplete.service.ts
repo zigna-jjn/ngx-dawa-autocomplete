@@ -1,29 +1,32 @@
 import { Injectable } from '@angular/core';
-import { Http, URLSearchParams } from '@angular/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs/observable/of';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class DawaAutocompleteService {
 
-    constructor(private _http: Http) {}
+    constructor(
+        private _httpClient: HttpClient,
+    ) {}
 
-    search(searchTerm: string): Observable<DawaAutocompleteItem[]> {
-
-        const searchQuery = new URLSearchParams();
+    public search(searchTerm: string) {
+        const searchQuery = new HttpParams();
         searchQuery.set('q', searchTerm);
         searchQuery.set('per_side', '6');
         searchQuery.set('format', 'json');
 
         if (searchTerm) {
-            return this._http
-                        .get('https://dawa.aws.dk/adresser/autocomplete', { search: searchQuery })
-                        .map((request) => request.json())
-                        .map(this.mapToAutocompleteItem);
+            return this._httpClient
+                .get<DawaAutocompleteItem[]>('https://dawa.aws.dk/adresser/autocomplete', { params: searchQuery })
+                .pipe(
+                    map(this.mapToAutocompleteItem)
+                );
         }
 
-        return Observable.of([]);
+        return of<DawaAutocompleteItem[]>([]);
     }
 
     private mapToAutocompleteItem(items: any[]): DawaAutocompleteItem[] {

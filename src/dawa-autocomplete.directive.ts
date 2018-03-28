@@ -1,17 +1,12 @@
 import { Directive, AfterViewInit, OnDestroy, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
-
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/switchMap';
-
 import { DawaAutocompleteService, DawaAutocompleteItem } from './dawa-autocomplete.service';
+
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { fromEvent } from 'rxjs/Observable/fromEvent';
+import 'rxjs/add/observable/fromEvent';
+
+import { filter, map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 @Directive({
     selector: '[ngxDawaAutocomplete]'
@@ -29,20 +24,21 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
     private _items: DawaAutocompleteItem[] = [];
     private _highlightedIndex = 0;
 
-    constructor(private _elementRef: ElementRef,
-                private _dawaAutocompleteService: DawaAutocompleteService) {}
+    constructor(
+        private _elementRef: ElementRef,
+        private _dawaAutocompleteService: DawaAutocompleteService
+    ) {}
 
     public ngAfterViewInit() {
-
-        this._searchEventSubscription$ = Observable
-            .fromEvent(this._elementRef.nativeElement, 'keyup')
-            .filter(this.filterArrowEnterAndTabKeys)
-            .map(e => e.target.value)
-            .debounceTime(150)
-            .distinctUntilChanged()
-            .switchMap((term: string) => this._dawaAutocompleteService.search(term))
+        this._searchEventSubscription$ = fromEvent(this._elementRef.nativeElement, 'keyup')
+            .pipe(
+                filter(this.filterArrowEnterAndTabKeys),
+                map(e => e.target.value),
+                debounceTime(150),
+                distinctUntilChanged(),
+                switchMap((term: string) => this._dawaAutocompleteService.search(term)),
+            )
             .subscribe(items => {
-
                 this._items = items;
                 this._highlightedIndex = 0;
 
@@ -54,9 +50,10 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
             .fromEvent<KeyboardEvent>(this._elementRef.nativeElement.parentElement, 'keydown');
 
         this._arrowEventSubscription$ = keydownEvent$
-            .filter(e => e.keyCode === 38 || e.keyCode === 40)
+            .pipe(
+                filter(e => e.keyCode === 38 || e.keyCode === 40)
+            )
             .subscribe(e => {
-
                 e.preventDefault();
 
                 if (e.keyCode === 40) {
@@ -69,7 +66,9 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
             });
 
         this._selectEventSubscription$ = keydownEvent$
-            .filter(e => e.keyCode === 13 || e.keyCode === 9)
+            .pipe(
+                filter(e => e.keyCode === 13 || e.keyCode === 9)
+            )
             .subscribe(e => {
 
                 if (this._items[this._highlightedIndex]) {
@@ -87,7 +86,6 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
 
     @HostListener('click', ['$event'])
     public onClick(event) {
-
         this._dawaAutocompleteService
             .search(event.target.value)
             .subscribe(items => {
@@ -99,7 +97,6 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
 
     @HostListener('focus', ['$event'])
     public onFocus(event) {
-
         this._dawaAutocompleteService
             .search(event.target.value)
             .subscribe(items => {
@@ -111,7 +108,6 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
 
     @HostListener('document:click', ['$event.target'])
     public onOutsideClick(target) {
-
         if (!this._elementRef.nativeElement.parentElement.contains(target)) {
             this._highlightedIndex = 0;
             this.items$.next([]);
