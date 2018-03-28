@@ -1,9 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
 
-import { of } from 'rxjs/observable/of';
+import { of, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+export class DawaAutocompleteItem {
+    text: string;
+    door: string;
+    floor: string;
+    number: string;
+    zip: number;
+    city: string;
+    street: string;
+    fullStreet: string;
+}
 
 @Injectable()
 export class DawaAutocompleteService {
@@ -12,11 +22,11 @@ export class DawaAutocompleteService {
         private _httpClient: HttpClient,
     ) {}
 
-    public search(searchTerm: string) {
-        const searchQuery = new HttpParams();
-        searchQuery.set('q', searchTerm);
-        searchQuery.set('per_side', '6');
-        searchQuery.set('format', 'json');
+    public search(searchTerm: string): Observable<DawaAutocompleteItem[]> {
+        const searchQuery = new HttpParams()
+            .set('q', searchTerm)
+            .set('per_side', '6')
+            .set('format', 'json');
 
         if (searchTerm) {
             return this._httpClient
@@ -43,15 +53,4 @@ export class DawaAutocompleteService {
             };
         });
     }
-}
-
-export class DawaAutocompleteItem {
-    text: string;
-    door: string;
-    floor: string;
-    number: string;
-    zip: number;
-    city: string;
-    street: string;
-    fullStreet: string;
 }

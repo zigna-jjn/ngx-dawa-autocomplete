@@ -1,0 +1,9 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../builds/ngx-dawa-autocomplete",
+  "lib": {
+    "flatModuleFile": "ngx-dawa-autocomplete",
+    "entryFile": "index.ts",
+    "umdModuleIds": {}
+  }
+}
