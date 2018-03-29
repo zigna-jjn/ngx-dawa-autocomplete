@@ -1,10 +1,7 @@
 import { Directive, AfterViewInit, OnDestroy, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
 import { DawaAutocompleteService, DawaAutocompleteItem } from './dawa-autocomplete.service';
 
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
-import { fromEvent } from 'rxjs/Observable/fromEvent';
-import 'rxjs/add/observable/fromEvent';
+import { fromEvent, Subscription } from 'rxjs';
 
 import { filter, map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
@@ -13,9 +10,9 @@ import { filter, map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs
 })
 export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
 
-    @Output() items$: EventEmitter<DawaAutocompleteItem[]> = new EventEmitter<DawaAutocompleteItem[]>();
-    @Output() highlighted$: EventEmitter<number> = new EventEmitter<number>();
-    @Output() select$: EventEmitter<DawaAutocompleteItem> = new EventEmitter<DawaAutocompleteItem>();
+    @Output() items$ = new EventEmitter<DawaAutocompleteItem[]>();
+    @Output() highlighted$ = new EventEmitter<number>();
+    @Output() select$ = new EventEmitter<DawaAutocompleteItem>();
 
     private _searchEventSubscription$: Subscription;
     private _arrowEventSubscription$: Subscription;
@@ -27,16 +24,20 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
     constructor(
         private _elementRef: ElementRef,
         private _dawaAutocompleteService: DawaAutocompleteService
-    ) {}
+    ) { }
 
     public ngAfterViewInit() {
-        this._searchEventSubscription$ = fromEvent(this._elementRef.nativeElement, 'keyup')
+
+        const keydownEvent$ = fromEvent<KeyboardEvent>(this._elementRef.nativeElement.parentElement, 'keydown');
+        const keyupEvent$ = fromEvent<KeyboardEvent>(this._elementRef.nativeElement.parentElement, 'keyup');
+
+        this._searchEventSubscription$ = keyupEvent$
             .pipe(
                 filter(this.filterArrowEnterAndTabKeys),
                 map(e => e.target.value),
                 debounceTime(150),
                 distinctUntilChanged(),
-                switchMap((term: string) => this._dawaAutocompleteService.search(term)),
+                switchMap((term: string) => this._dawaAutocompleteService.search(term))
             )
             .subscribe(items => {
                 this._items = items;
@@ -46,13 +47,8 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
                 this.items$.next(this._items);
             });
 
-        const keydownEvent$ = Observable
-            .fromEvent<KeyboardEvent>(this._elementRef.nativeElement.parentElement, 'keydown');
-
         this._arrowEventSubscription$ = keydownEvent$
-            .pipe(
-                filter(e => e.keyCode === 38 || e.keyCode === 40)
-            )
+            .pipe(filter(e => e.keyCode === 38 || e.keyCode === 40))
             .subscribe(e => {
                 e.preventDefault();
 
@@ -66,9 +62,7 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
             });
 
         this._selectEventSubscription$ = keydownEvent$
-            .pipe(
-                filter(e => e.keyCode === 13 || e.keyCode === 9)
-            )
+            .pipe(filter(e => e.keyCode === 13 || e.keyCode === 9))
             .subscribe(e => {
 
                 if (this._items[this._highlightedIndex]) {
@@ -78,16 +72,23 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
     }
 
     public ngOnDestroy() {
+        if (this._searchEventSubscription$) {
+            this._searchEventSubscription$.unsubscribe();
+        }
 
-        this._searchEventSubscription$.unsubscribe();
-        this._arrowEventSubscription$.unsubscribe();
-        this._selectEventSubscription$.unsubscribe();
+        if (this._arrowEventSubscription$) {
+            this._arrowEventSubscription$.unsubscribe();
+        }
+
+        if (this._selectEventSubscription$) {
+            this._selectEventSubscription$.unsubscribe();
+        }
     }
 
-    @HostListener('click', ['$event'])
-    public onClick(event) {
+    @HostListener('click', ['$event.target.value'])
+    public onClick(searchValue: string) {
         this._dawaAutocompleteService
-            .search(event.target.value)
+            .search(searchValue)
             .subscribe(items => {
                 this._items = items;
                 this._highlightedIndex = 0;
@@ -95,10 +96,10 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
             });
     }
 
-    @HostListener('focus', ['$event'])
-    public onFocus(event) {
+    @HostListener('focus', ['$event.target.value'])
+    public onFocus(searchValue: string) {
         this._dawaAutocompleteService
-            .search(event.target.value)
+            .search(searchValue)
             .subscribe(items => {
                 this._items = items;
                 this._highlightedIndex = 0;
@@ -116,10 +117,10 @@ export class DawaAutocompleteDirective implements AfterViewInit, OnDestroy {
 
     private filterArrowEnterAndTabKeys(event) {
         return event.keyCode !== 37 &&
-               event.keyCode !== 38 &&
-               event.keyCode !== 39 &&
-               event.keyCode !== 40 &&
-               event.keyCode !== 13 &&
-               event.keyCode !== 9;
+            event.keyCode !== 38 &&
+            event.keyCode !== 39 &&
+            event.keyCode !== 40 &&
+            event.keyCode !== 13 &&
+            event.keyCode !== 9;
     }
 }
