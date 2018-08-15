@@ -1,0 +1,29 @@
+{
+  "name": "ngx-dawa-autocomplete",
+  "version": "2.0.2",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DineroRegnskab/ngx-dawa-autocomplete"
+  },
+  "homepage": "https://github.com/DineroRegnskab/ngx-dawa-autocomplete#readme",
+  "bugs": {
+    "url": "https://github.com/DineroRegnskab/ngx-dawa-autocomplete/issues"
+  },
+  "author": {
+    "name": "dinero",
+    "email": "developer@dinero.dk"
+  },
+  "keywords": [
+    "angular",
+    "autocomplete",
+    "dawa",
+    "dawa-autocomplete"
+  ],
+  "peerDependencies": {
+    "@angular/common": "^6.0.0",
+    "@angular/core": "^6.0.0",
+    "@angular/http": "^6.0.0",
+    "rxjs": "^6.0.0"
+  }
+}

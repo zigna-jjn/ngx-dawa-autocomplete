@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { DawaAutocompleteItem } from 'ngx-dawa-autocomplete';
 
 @Component({
-	selector: 'app-root',
-	template: `
+    selector: 'app-root',
+    template: `
 		<div class="autocomplete-container">
 			<input
 				type="text"
@@ -20,9 +20,9 @@ import { DawaAutocompleteItem } from 'ngx-dawa-autocomplete';
 					{{item.text}}
 				</li>
 			</ul>
-		</div>  
+		</div>
   	`,
-	styles: [`
+    styles: [`
 		input {
 			border: 1px solid #ccc;
 			background: #f9f9f9;
@@ -70,21 +70,21 @@ import { DawaAutocompleteItem } from 'ngx-dawa-autocomplete';
 })
 export class AppComponent {
 
-	public items: DawaAutocompleteItem[] = [];
-	public highlightedIndex: number = 0;
-	public selectedStreet: string = '';
+    public items: DawaAutocompleteItem[] = [];
+    public highlightedIndex = 0;
+    public selectedStreet = '';
 
-	public onItems(items) {
-		this.items = items;
-	}
+    public onItems(items) {
+        this.items = items;
+    }
 
-	public onItemHighlighted(index) {
-		this.highlightedIndex = index;
-	}
+    public onItemHighlighted(index) {
+        this.highlightedIndex = index;
+    }
 
-	public onItemSelected(item) {
-		this.items = [];
-		this.highlightedIndex = 0;
-		this.selectedStreet = item.fullStreet;
-	}
+    public onItemSelected(item) {
+        this.items = [];
+        this.highlightedIndex = 0;
+        this.selectedStreet = item.fullStreet;
+    }
 }
