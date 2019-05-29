@@ -1,3 +1,7 @@
+# 2.1.0 (2019-05-29)
+
+Upgraded to latest angular 8 version.
+
 # 2.0.2 (2018-08-06)
 
 Changed project to use @angular/cli version 6 with latest version of angular as a peer dependency. 
