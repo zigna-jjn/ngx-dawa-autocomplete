@@ -1,6 +1,6 @@
 {
   "name": "ngx-dawa-autocomplete",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -19,10 +19,5 @@
     "autocomplete",
     "dawa",
     "dawa-autocomplete"
-  ],
-  "peerDependencies": {
-    "@angular/common": "^8.0.0",
-    "@angular/core": "^8.0.0",
-    "rxjs": "^6.5.2"
-  }
+  ]
 }
