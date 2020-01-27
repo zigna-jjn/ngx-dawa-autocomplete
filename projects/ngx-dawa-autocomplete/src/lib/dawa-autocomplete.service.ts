@@ -13,6 +13,7 @@ export class DawaAutocompleteItem {
     city: string;
     street: string;
     fullStreet: string;
+    id: string;
 }
 
 @Injectable()
@@ -42,6 +43,7 @@ export class DawaAutocompleteService {
     private mapToAutocompleteItem(items: any[]): DawaAutocompleteItem[] {
         return items.map(item => {
             return {
+                id: item.id,
                 text: item.tekst,
                 door: item.adresse['dør'],
                 floor: item.adresse['etage'],
